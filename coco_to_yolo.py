@@ -118,6 +118,8 @@ def main(**kwargs):
     percent_val = kwargs["percent_val"]
     lang_ru = kwargs["lang_ru"]
 
+    yolo_dataset_path = os.path.join(coco_dataset_path, os.pardir, yolo_dataset_path)
+
     coco_annotations_path = os.path.join(coco_dataset_path, 'annotations')
     coco_images_path = os.path.join(coco_dataset_path, 'images')
 
@@ -236,7 +238,7 @@ def main(**kwargs):
         annotated_images = set([entry['file_name'] for entry in coco_data['images']])
 
         # Get the list of files in the images folder
-        all_images = set(os.listdir(coco_images_path))
+        all_images = set(os.listdir(os.path.join(coco_images_path, type_data)))
 
         # Check that all images from COCO are annotated
         if not annotated_images.issubset(all_images):
@@ -253,7 +255,7 @@ def main(**kwargs):
         for image in images:
             image_id = image['id']
             file_name = image['file_name']
-            path_image_initial = os.path.join(coco_images_path, file_name)
+            path_image_initial = os.path.join(coco_images_path, type_data, file_name)
             
             # Find corresponding annotations for the image
             list_of_lists_annotations = [ann['segmentation'] for ann in coco_data['annotations'] if ann['image_id'] == image_id]
@@ -307,22 +309,22 @@ def main(**kwargs):
     # Get the list of files in the folder
     files_in_folder = set(os.listdir(coco_images_path))
 
-    # Check that all files from the list are present in the folder
-    missing_files = set(list_of_images_path) - files_in_folder
-    extra_files = files_in_folder - set(list_of_images_path)
+    # # Check that all files from the list are present in the folder
+    # missing_files = set(list_of_images_path) - files_in_folder
+    # extra_files = files_in_folder - set(list_of_images_path)
 
-    # Display notification
-    if missing_files:
-        if lang_ru:
-            print(f"Отсутствующие файлы в папке {coco_images_path}: {missing_files}")
-        else:
-            print(f"Missing files in the folder {coco_images_path}: {missing_files}")
+    # # Display notification
+    # if missing_files:
+    #     if lang_ru:
+    #         print(f"Отсутствующие файлы в папке {coco_images_path}: {missing_files}")
+    #     else:
+    #         print(f"Missing files in the folder {coco_images_path}: {missing_files}")
 
-    if extra_files:
-        if lang_ru:
-            print(f"Лишние файлы в папке {coco_images_path}: {extra_files}")
-        else:
-            print(f"Extra files in the folder {coco_images_path}: {extra_files}")
+    # if extra_files:
+    #     if lang_ru:
+    #         print(f"Лишние файлы в папке {coco_images_path}: {extra_files}")
+    #     else:
+    #         print(f"Extra files in the folder {coco_images_path}: {extra_files}")
 
     # Creating data.yaml configuration:
     # Create a data structure for writing to data.yaml
