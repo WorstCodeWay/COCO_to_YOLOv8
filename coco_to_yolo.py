@@ -157,7 +157,7 @@ def main(**kwargs):
     if autosplit:
         for folder_path in ['images', 'labels']:
             for type in ['validation', 'train']:
-                path_create=os.path.join(yolo_dataset_path, type, folder_path)
+                path_create=os.path.join(yolo_dataset_path, folder_path, type)
                 os.makedirs(path_create, exist_ok=True)
 
     ### Check for duplicates in different subsets ###
@@ -209,7 +209,7 @@ def main(**kwargs):
         # Create folder if it doesn't exist
         if not autosplit:
             for folder_path in ['images', 'labels']:
-                path_create=os.path.join(yolo_dataset_path, type_data.lower(), folder_path)
+                path_create=os.path.join(yolo_dataset_path, folder_path, type_data.lower())
                 os.makedirs(path_create, exist_ok=True)
 
         # Open coco json
@@ -293,10 +293,10 @@ def main(**kwargs):
                     img_height=image['height'],
                     image_id=image_id,
                     type_data=type_dataset,
-                    path_label_final=os.path.join(yolo_dataset_path, type_dataset,
-                                                'labels', os.path.splitext(file_name)[0]+'.txt'),
-                    path_image_final=os.path.join(yolo_dataset_path, type_dataset,
-                                                'images', file_name),
+                    path_label_final=os.path.join(yolo_dataset_path,'labels', 
+                                                  type_dataset, os.path.splitext(file_name)[0]+'.txt'),
+                    path_image_final=os.path.join(yolo_dataset_path,
+                                                'images', type_dataset, file_name),
                     classes_names=[categories_dict[cl] for cl in classes],
                     classes_ids=classes,
                     point_list=annotations,
@@ -334,12 +334,12 @@ def main(**kwargs):
     data_dict = {
         'names': list(categories_dict.values()),
         'nc': len(categories_dict),
-        'test': 'test/images',
-        'train': 'train/images',
-        'val': 'validation/images'
+        'test': 'images/test',
+        'train': 'images/train',
+        'val': 'images/validation'
     }
     if autosplit:
-        data_dict['test'] = 'validation/images'
+        data_dict['test'] = 'images/validation'
 
     # Path to the data.yaml file
     data_yaml_path = f"{yolo_dataset_path}/data.yaml"  
