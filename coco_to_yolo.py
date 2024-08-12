@@ -235,10 +235,10 @@ def main(**kwargs):
 
         #### Additional check for the presence of all image files
         # Get the list of image files with annotations in COCO
-        annotated_images = set([entry['file_name'] for entry in coco_data['images']])
+        annotated_images = set([entry['file_name'].replace('Data/', '') for entry in coco_data['images']])
 
         # Get the list of files in the images folder
-        all_images = set(os.listdir(os.path.join(coco_images_path, type_data)))
+        all_images = set(os.listdir(os.path.join(coco_images_path, type_data, "Data")))
 
         # Check that all images from COCO are annotated
         if not annotated_images.issubset(all_images):
@@ -254,8 +254,8 @@ def main(**kwargs):
         # Iterate through images and read annotations
         for image in images:
             image_id = image['id']
-            file_name = image['file_name']
-            path_image_initial = os.path.join(coco_images_path, type_data, file_name)
+            file_name = image['file_name'].replace('Data/', '')
+            path_image_initial = os.path.join(coco_images_path, type_data, 'Data/', file_name)
             
             # Find corresponding annotations for the image
             list_of_lists_annotations = [ann['segmentation'] for ann in coco_data['annotations'] if ann['image_id'] == image_id]
@@ -273,6 +273,9 @@ def main(**kwargs):
                 raise SystemExit
             
             classes = [ann['category_id']-1 for ann in coco_data['annotations'] if ann['image_id'] == image_id]
+
+            if not classes or not annotations:
+                continue
             
             if autosplit:
                 # Generate a random number from 1 to 100
