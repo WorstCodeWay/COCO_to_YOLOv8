@@ -80,6 +80,12 @@ def preprocessing_for_yolov8_obb_model(coco_json: str, lang_ru=False):
     type=str,
 )
 @click.option(
+    "--data_dir",
+    default="false",
+    help="if there is a 'Data' subdirectory",
+    type=bool,
+)
+@click.option(
     "--yolo_dataset",
     default="YOLO_dataset",
     help="Folder with the resulting YOLOv8 format dataset. Default is YOLO_dataset",
@@ -113,6 +119,7 @@ def main(**kwargs):
     # ------------------ ARG parse ------------------
     coco_dataset_path = kwargs["coco_dataset"]
     yolo_dataset_path = kwargs["yolo_dataset"]
+    has_data_dir = kwargs["data_dir"]
     print_info = kwargs["print_info"]
     autosplit = kwargs["autosplit"]
     percent_val = kwargs["percent_val"]
@@ -235,10 +242,14 @@ def main(**kwargs):
 
         #### Additional check for the presence of all image files
         # Get the list of image files with annotations in COCO
-        annotated_images = set([entry['file_name'].replace('Data/', '') for entry in coco_data['images']])
-
-        # Get the list of files in the images folder
-        all_images = set(os.listdir(os.path.join(coco_images_path, type_data, "Data")))
+        if has_data_dir :
+            annotated_images = set([entry['file_name'].replace('Data/', '') for entry in coco_data['images']])
+            # Get the list of files in the images folder
+            all_images = set(os.listdir(os.path.join(coco_images_path, type_data, "Data")))
+        else:
+           annotated_images = set([entry['file_name'] for entry in coco_data['images']])
+           # Get the list of files in the images folder
+           all_images = set(os.listdir(os.path.join(coco_images_path, type_data)))
 
         # Check that all images from COCO are annotated
         if not annotated_images.issubset(all_images):
@@ -254,8 +265,12 @@ def main(**kwargs):
         # Iterate through images and read annotations
         for image in images:
             image_id = image['id']
-            file_name = image['file_name'].replace('Data/', '')
-            path_image_initial = os.path.join(coco_images_path, type_data, 'Data/', file_name)
+            if has_data_dir :
+                file_name = image['file_name'].replace('Data/', '')
+                path_image_initial = os.path.join(coco_images_path, type_data, 'Data/', file_name)
+            else :
+                file_name = image['file_name']
+                path_image_initial = os.path.join(coco_images_path, type_data, file_name)
             
             # Find corresponding annotations for the image
             list_of_lists_annotations = [ann['segmentation'] for ann in coco_data['annotations'] if ann['image_id'] == image_id]
